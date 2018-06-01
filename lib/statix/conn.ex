@@ -26,13 +26,13 @@ defmodule Statix.Conn do
     |> transmit(conn.sock)
   end
 
-  defp transmit(packet, sock) do
+  def transmit(packet, sock) do
     Port.command(sock, packet)
     receive do
       {:inet_reply, _port, status} -> status
     end
   end
-  
+
   if Version.match?(System.version(), ">= 1.3.0") do
     defp string_to_charlist(string), do: String.to_charlist(string)
   else
