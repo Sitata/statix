@@ -266,4 +266,28 @@ defmodule StatixTest do
       assert {:error, :port_closed} == TestStatix.timing("sample", 2.5)
     end) =~ "timing metric \"sample\" lost value 2.5 due to port closure"
   end
+
+  test "sends global tags when present" do
+    Application.put_env(:statix, :tags, ["tag:test"])
+
+    TestStatix.increment("sample", 3)
+    assert_receive {:server, "sample:3|c|#tag:test"}
+
+    TestStatix.increment("sample", 3, tags: ["foo"])
+    assert_receive {:server, "sample:3|c|#foo,tag:test"}
+  after
+    Application.delete_env(:statix, :tags)
+  end
+
+  test "sends global connection-specific tags" do
+    Application.put_env(:statix, TestStatix, tags: ["tag:test"])
+
+    TestStatix.increment("sample", 3)
+    assert_receive {:server, "sample:3|c|#tag:test"}
+
+    TestStatix.increment("sample", 3, tags: ["foo"])
+    assert_receive {:server, "sample:3|c|#foo,tag:test"}
+  after
+    Application.delete_env(:statix, TestStatix)
+  end
 end
