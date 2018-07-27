@@ -36,7 +36,7 @@ defmodule Statix.Conn do
     end
   end
 
-  defp transmit(packet, sock) do
+  def transmit(packet, sock) do
     try do
       Port.command(sock, packet)
       receive do
@@ -47,7 +47,7 @@ defmodule Statix.Conn do
         {:error, :port_closed}
     end
   end
-  
+
   if Version.match?(System.version(), ">= 1.3.0") do
     defp string_to_charlist(string), do: String.to_charlist(string)
   else
